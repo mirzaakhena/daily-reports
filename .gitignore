@@ -1,0 +1,11 @@
+
+# test sandboxes
+/tmp-test/
+.test-sandbox/
+
+# generated reports (per-project archive)
+.daily-reports/
+
+# editor
+.DS_Store
+*.swp
