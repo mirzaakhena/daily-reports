@@ -31,7 +31,7 @@ Counts are defaults. If the user's free prompt asks for a different count (e.g. 
 
 ## Style rules
 
-1. **One line per bullet.** If it needs two lines, split it into two bullets.
+1. **One line per bullet, target 10–15 words.** Hard ceiling is the line; the word band is a tightness target. If a bullet exceeds 15 words, either split it into two bullets or strip qualifiers until it fits. If it falls below 10, it is fine — terse is allowed when the activity is genuinely small. Never pad to reach 10.
 
 2. **Strong action verb to start each bullet.** Prefer: `Integrate`, `Implement`, `Research`, `Refactor`, `Debug`, `Review`, `Validate`, `Document`, `Profile`, `Fix`, `Add`, `Remove`, `Wire`, `Swap`, `Migrate`. Ban: `continue` — replace with the specific verb for what is being continued.
 
@@ -100,6 +100,7 @@ Follow this procedure step by step:
    - Every bullet: does it trace to at least one piece of context? If not, remove it.
    - Every technical term: does the exact token appear in the context? If not, either remove the term or rephrase without it.
    - Counts: `Yesterday` at default 5, `Today` at default 3 (or the count the user requested). If below the target, expand via legitimate breakdown only. If above, consolidate small items. Never invent to hit the count.
+   - Word count per bullet: 10–15 words target. Anything above 15 must be split or tightened. Below 10 is fine if honest.
    - External-reader check: would a reader outside your team understand each bullet in isolation? Strip internal process jargon (`opsi A`, `path 1`, `spike`) and replace with the concrete activity.
    - Verbs: any `continue`? Replace with a specific verb.
    - Fillers: any `just`, `simply`, `some`, `various`? Remove.

@@ -134,7 +134,7 @@ Counts are defaults. The user's free prompt can override both.
 
 ## 7. Style rules (encoded in SKILL.md)
 
-1. **One line per bullet.** If it needs more than one line, split it into two bullets.
+1. **One line per bullet, target 10–15 words.** Bullets above 15 words must be split or tightened. Below 10 is fine when honest; never pad.
 2. **Start with a strong action verb.** `Integrate`, `Implement`, `Research`, `Refactor`, `Debug`, `Review`, `Validate`, `Document`, `Profile`, `Fix`, `Add`, `Remove`, `Wire`, `Swap`, `Migrate`. Avoid `continue` — replace with the specific verb for what is being continued.
 3. **Breakdown is granular but grounded.** One commit may expand to 2–4 bullets, but each bullet must have a basis in the commit diff, message, file paths, branch name, status output, TODO file, or user-supplied free prompt. No invented activities.
 4. **Non-coding work counts.** Reviewing PRs, debugging integrations, researching docs, preparing environments, onboarding — all are legitimate bullets when the context supports them (branch name, stash, unstaged changes, free prompt).

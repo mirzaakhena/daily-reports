@@ -13,9 +13,9 @@ Hello, this is my daily report:
 
 # Yesterday
 - Implement Redis-backed session store behind the existing auth middleware
-- Migrate user profile table from MySQL 5.7 to 8.0 and rebuild composite index on (tenant_id, email)
+- Migrate user profile table from MySQL 5.7 to 8.0 with composite index
 - Add idempotency key support to the order creation endpoint
-- Debug intermittent 502s in checkout traced to gRPC client timeout default
+- Debug intermittent 502s in checkout traced to gRPC client timeout
 - Review and merge inventory reservation refactor PR
 
 # Today
@@ -43,7 +43,7 @@ Hello, this is my daily report:
 - Add dead-letter queue consumer to the events ingestion pipeline with exponential backoff
 - Refactor schema validation step to fail fast on missing tenant_id rather than dropping silently
 - Implement Parquet partition compaction job for the warehouse hourly bucket
-- Investigate Kafka consumer lag spike on the orders topic and confirm it traced to a slow downstream sink
+- Investigate Kafka consumer lag spike on orders topic, traced to slow downstream sink
 - Update Airflow DAG retry policy from 1 to 3 with 5-minute exponential backoff
 
 # Today
@@ -68,7 +68,7 @@ Hello, this is my daily report:
 # Yesterday
 - Implement retry-with-jitter wrapper around the SDK's network client for transient 5xx
 - Add iOS background task handler so telemetry batches survive app suspension
-- Fix crash on cold start when the cached config file is corrupt — fall back to bundled defaults
+- Fix cold-start crash when cached config is corrupt by falling back to bundled defaults
 - Document public API surface for the new analytics module in the SDK README
 - Review external integrator's reproduction repo for the reported memory leak
 
