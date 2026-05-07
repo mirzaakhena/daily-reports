@@ -4,6 +4,8 @@ These are **synthetic illustrative examples**, not real reports. Study the densi
 
 All examples below follow the default counts: 5 bullets for `# Yesterday`, 3 bullets for `# Today`.
 
+**Read example D first.** It demonstrates the preferred human voice (variable bullet length, multi-sentence narration where it earns its keep, casual hedges that carry meaning, no internal navigation tokens). Examples A–C are still valid for compact-mode reports but lean more uniform — when a day's activity has nuance, prefer D's voice.
+
 ---
 
 ## Example A — E-commerce backend
@@ -85,7 +87,36 @@ Hello, this is my daily report:
 
 ---
 
-## Anti-pattern — what NOT to write
+## Example D — ML inference service (preferred voice)
+
+```
+Hello, this is my daily report:
+
+# Yesterday
+- Stop the model warmup from blocking the readiness probe during deploys; the load balancer was killing pods before the model finished loading
+- Patch the embedding service to fall back to the previous model version when the new one returns NaN, instead of returning a 500
+- Switch feature-store reads from synchronous Redis calls to a small async batcher. Recommendation endpoint p95 dropped about 40 ms
+- Document the on-call runbook for embedding service rollbacks
+- Review the inference autoscaler PR and leave a couple of comments about cold-start ramp
+
+# Today
+- Ship the embedding fallback to staging, then watch the error rate for an hour or two before promoting
+- Look at why the autoscaler's cold-start fix doesn't kick in for the largest model. Possibly related to startup probe timing — needs to be reproduced locally first
+- Two flaky tests in the recommendation service kept failing on CI today. Either skip them or fix them properly tomorrow, depending on what the failure mode looks like in the morning
+```
+
+**What to notice:**
+- Bullet length varies: short (10 words), medium (20), long-with-aside (25+, including a follow-up sentence). Reads like a real person reflecting, not a template.
+- Casual hedges that carry meaning: `for an hour or two`, `Possibly related to`, `kept failing`, `depending on what... looks like in the morning`. None are filler — each tells you something about timing, certainty, or status.
+- Multi-sentence bullets used where one fact deserves an aside (`Recommendation endpoint p95 dropped about 40 ms` after a setup sentence; the autoscaler bullet pairs a hypothesis with a planned next step).
+- Non-uniform openers: most are action verbs, but `Two flaky tests in the recommendation service` opens with the subject because that reads more naturally than forcing a verb.
+- Real outcomes named: `40 ms`, `p95`, `NaN`, `readiness probe`, `embedding service` — the same kind of specifics A–C use, but woven into sentences rather than tacked on as qualifiers.
+- A bullet admits uncertainty (`Either skip them or fix them properly tomorrow`). Honest > polished.
+- No commit hashes, no branch names, no MR numbers, no internal file paths or function names. The reader gets architecture + decisions, not navigation.
+
+---
+
+## Anti-pattern A — internal process jargon
 
 ```
 # Yesterday
@@ -96,7 +127,7 @@ Hello, this is my daily report:
 - Discussion with team about path 1 vs path 2
 ```
 
-**Why this fails every rule:**
+**Why this fails:**
 - `Continue option A` — internal process shorthand; no external reader knows what `option A` is.
 - `the v2 plan` — assumes shared standup context.
 - `the auth thing`, `a quick fix`, `some refactoring` — vague, generic, filler-laden.
@@ -108,10 +139,65 @@ A bullet should still make sense to a reader pulled in cold. If it doesn't, rewr
 
 ---
 
+## Anti-pattern B — AI-uniform voice
+
+```
+# Yesterday
+- Implement Redis-backed caching layer for session lookups
+- Refactor authentication middleware to support OAuth flows
+- Add comprehensive test coverage for the payment processing module
+- Migrate database schema from version 5 to version 8
+- Document API endpoints for the new analytics dashboard
+
+# Today
+- Continue work on Redis caching layer integration
+- Begin OAuth flow testing across all environments
+- Schedule code review for the database migration
+```
+
+**Why this fails the voice check** — even though every individual rule on technical specificity passes:
+
+- Every bullet starts with a strong action verb followed by a technical noun phrase. Same shape, ten times in a row.
+- Every bullet lands in the 9–13 word range. Same beat, same rhythm.
+- No multi-sentence bullets, no parentheticals, no hedges, no admissions of uncertainty.
+- `Today` opens two of three bullets with `Continue` and `Begin` — both AI tells; the actual activity is hidden.
+- Reads like a feature-list press release, not a person reporting their day.
+
+The fix is not to drop technical specificity. It's to break the rhythm: vary length, allow the occasional fragment or two-sentence bullet, surface what didn't go well, name the moments where a decision was deferred. See Example D for what that looks like.
+
+---
+
+## Anti-pattern C — internal navigation leaking into bullets
+
+```
+# Yesterday
+- Land commit 6591a0c fixing _resolve_env in agents/free-code/swe_bench_main.py
+- Open MR #142 on feat/refactor-billing branch with 8 commits
+- Update app/services/swe_bench_agent.py:152 to use absolute host path
+```
+
+**Why this fails:** the reader is your boss, not someone navigating your repo. Strip:
+- `commit 6591a0c` → just describe the fix
+- `MR #142 on feat/refactor-billing` → "open the billing-refactor merge request"
+- `app/services/swe_bench_agent.py:152`, `_resolve_env` → name the activity, not the line
+
+Rewritten:
+
+```
+- Fix the model-name override being silently ignored by the free-code wrapper
+- Open the billing-refactor merge request for review
+- Switch the agent workspace path resolution to an absolute host path so disk-backed mounts can replace the in-memory tmpfs
+```
+
+The internal token belongs in the commit message and the merge request description. The daily report is a different document for a different reader.
+
+---
+
 ## Common patterns across the examples
 
 - Technical names and version numbers are surfaced — but only when they appear in the actual context blob.
-- Action verbs are explicit and varied: `Implement`, `Migrate`, `Add`, `Debug`, `Refactor`, `Investigate`, `Profile`, `Document`, `Validate`, `Review`, `Wire`, `Fix`, `Cut`.
+- Action verbs are explicit and varied: `Implement`, `Migrate`, `Add`, `Debug`, `Refactor`, `Investigate`, `Profile`, `Document`, `Validate`, `Review`, `Wire`, `Fix`, `Cut`. Not every bullet has to lead with one — Example D opens a bullet with the subject when that reads more naturally.
 - Non-coding work (reviews, investigations, docs, runbooks, meetings) is reported alongside coding work.
-- Each bullet is one line and reads independently of any team-internal context.
-- `Today` flows from `Yesterday` plus free-prompt hints, not invented from scratch.
+- Each bullet reads independently of any team-internal context — and stripped of internal navigation tokens (commit hashes, branch names, MR numbers, function names, file paths).
+- Bullet length varies on purpose. A column of identical 12-word bullets reads templated; a mix of short, medium, and occasionally multi-sentence bullets reads human.
+- `Today` flows from `Yesterday` plus free-prompt hints, not invented from scratch. Honest deferrals and uncertainties belong here as much as confirmed plans.
