@@ -31,22 +31,25 @@ Counts are defaults. If the user's free prompt asks for a different count (e.g. 
 
 ## What "Yesterday" and "Today" actually mean
 
-**The report is typically written at end-of-day and posted the following morning.** Anchor `Yesterday` and `Today` to the **posting moment**, not the writing moment. From the morning reader's perspective:
+**The report is written at end-of-day H and posted the next morning H+1.** Anchor `Yesterday` and `Today` to the **posting moment** (H+1), not the writing moment (H):
 
-- **`Yesterday`** = the work session being reported. In practice this is **the session you just finished** when generating the report. The bullets describe what was actually done — completed work, fixes shipped, decisions made, items deferred.
-- **`Today`** = the next session, the upcoming day's plan. The bullets describe what you intend to do next — usually drawn from the just-finished session's open backlog, the latest handoff's "next session goal", TODO entries, or explicit free-prompt hints.
+- **`Yesterday`** = work that has actually been completed by the writing moment. Each bullet describes something **already done at the time of writing** — shipped fixes, completed implementations, decisions made, items reviewed, items deferred. **If it isn't done yet at writing time, it does NOT belong in `Yesterday`.**
+- **`Today`** = remaining work that will be picked up next session. Each bullet describes something **still on the queue** — not yet started, or started but not finished — that will be tackled on day H+1. **If it was already completed during the writing day H, it does NOT belong in `Today`.**
+
+This is a content rule, not just a tense rule. Every `Yesterday` bullet must be a fact ("I did X") and every `Today` bullet must be a forecast ("I will do Y"). The report is read on the morning of H+1; bullets must be factually correct at that reading moment.
 
 Common mistakes to avoid:
 
+- ❌ Putting work the writer plans to finish later that day into `Yesterday` because "it'll be done by the time anyone reads this." If it isn't done at writing time, it goes in `Today` (or gets dropped). Don't pre-credit incomplete work.
 - ❌ Writing `Yesterday` from the *writing* moment so it captures the previous calendar day's session and `Today` ends up describing the session you just finished. That report is one day stale by the time it's posted.
 - ❌ Treating `Today` as a continuation of writing-time activity ("what I'm doing right now"). It is forward-looking.
-- ✅ When in doubt: ask "if the reader opens this tomorrow morning, will the bullets make sense as 'what happened yesterday' and 'what's planned for today'?" — if not, shift the content one slot.
+- ✅ When in doubt: walk through each bullet — "is this *done* (Yesterday) or *still to do* (Today)?" Anything that isn't done yet at writing time belongs in `Today`, regardless of how close to finished it is.
 
 If the user explicitly says they will post the report at a different time (e.g., immediately, or after a multi-day gap), follow that — but the default convention is next-morning posting and the anchoring rule above applies.
 
 ## Style rules
 
-1. **Vary bullet length on purpose.** A short 6-word bullet next to a longer 25-word multi-sentence bullet reads like a person. A column of identical 12-word bullets reads like a template. Aim for a mix: some terse, some narrative, occasionally one with a parenthetical aside or a follow-up sentence ("...; the second attempt got set aside" / "Hermes passed first time. The other four each broke for a different reason — ..."). Never pad to a target.
+1. **Keep bullets very concise — target 10–15 words per bullet, hard cap 15.** A bullet that wants to be 16+ words is doing too much; split it into two bullets or trim the detail the reader doesn't need. **Multi-sentence bullets are not allowed** — one short sentence (or fragment) per bullet, no parentheticals, no follow-up clauses joined by `;` or `—` that turn into a second sentence. Strip context and "why" detail aggressively; the reader needs *what was done*, not *how* or *with what nuance*. Shorter (7–10 words) is fine when the activity is genuinely simple. Never pad.
 
 2. **Strong action verb is the default opener, not a rule.** Most bullets do start with one (`Implement`, `Migrate`, `Debug`, `Refactor`, `Profile`, `Fix`, `Wire`, `Swap`). But not every bullet has to — when it reads more naturally, start with the subject ("Two agents still fail because..."), a hedge ("Held off on..."), or a state-of-the-world fact ("The remaining flaky tests..."). Ban only `continue` — replace with the specific verb for what is being continued.
 
@@ -89,12 +92,11 @@ If the user explicitly says they will post the report at a different time (e.g.,
    - Reasonable continuations of `Yesterday` — e.g., if `Yesterday` has `Add schema` and there is a visible integration task, `Today` may list `Wire schema into endpoint X`.
    - If all of the above are empty, ask the user rather than invent.
 
-10. **Voice: a developer giving a quick standup, not a press release.**
-    - Mix sentence lengths within and across bullets.
-    - A bullet may be one sentence, a fragment, or two short sentences — pick what matches the activity. Multi-sentence bullets are fine when one fact deserves an aside ("Hermes passed first time. The other four each broke for a different reason...").
+10. **Voice: a developer giving a one-line update, not a press release.**
+    - One short sentence (or sentence fragment) per bullet — no multi-sentence bullets, no parentheticals, no follow-up clauses.
     - Use contractions if you'd say it that way out loud (`don't`, `didn't`, `we'd`).
-    - Don't end every bullet on the same beat. If three in a row close on a quantitative outcome, break the pattern with a status line, a parenthetical, or a hedged claim.
-    - Things going wrong, decisions being made, items deferred — those are part of an honest day. Surface them. A report that's all green outcomes reads like marketing copy.
+    - Things going wrong, decisions being made, items deferred — those are part of an honest day. Surface them as their own short bullets. A report that's all green outcomes reads like marketing copy.
+    - If you can't fit the activity into 15 words without losing meaning, split it into two bullets — don't run on.
 
 ## Language and tone
 
@@ -120,24 +122,29 @@ Follow this procedure step by step:
    - `Today` hints.
    - Any project-name override.
 
-3. **Draft `Yesterday`** (the just-finished session — what actually happened). For each commit or coherent cluster of commits:
+3. **Draft `Yesterday`** — work already completed by the writing moment (what is actually done as of right now, on day H). For each commit or coherent cluster of commits:
    - Identify the user-visible outcome (not the internal refactor detail).
    - Expand into 2–4 grounded sub-bullets if the diff supports distinct activities.
    - Rewrite with a strong action verb and specific terminology drawn from the commit. Surface deferrals and items that didn't work too — those are part of an honest day.
+   - Cap each bullet at 10–15 words (hard cap 15). If a sub-bullet wants to be 16+ words, split into two bullets or trim. No multi-sentence bullets.
+   - Do NOT include work the writer is "about to finish" but hasn't completed yet. If it isn't done, it belongs in `Today`.
 
-4. **Draft `Today`** (the upcoming session — what's planned next, anchored to next-morning posting). Apply the priority ladder in rule 9. If a `.handoff/` markdown was generated this session, its Section 6 ("Apa yang Akan Dikerjakan di Sesi Berikutnya") is the strongest source.
+4. **Draft `Today`** — remaining work that will be picked up on day H+1 (items not yet completed at the writing moment). Apply the priority ladder in rule 9. If a `.handoff/` markdown was generated this session, its Section 6 ("Apa yang Akan Dikerjakan di Sesi Berikutnya") is the strongest source. Same 10–15 word cap per bullet.
 
 5. **Self-check before emitting.**
    - Every bullet: does it trace to at least one piece of context? If not, remove it.
    - Every technical term: does the exact token appear in the context? If not, either remove the term or rephrase without it.
    - Counts: `Yesterday` at default 5, `Today` at default 3 (or the count the user requested). If below the target, expand via legitimate breakdown only. If above, consolidate small items. Never invent to hit the count.
-   - Bullet length variation: scan the column. Are most bullets within ±3 words of each other? If yes, the report reads templated — break the rhythm by splitting one into two short bullets, merging two into a multi-sentence bullet, or trimming a long one to a fragment.
+   - **Word-count check (mandatory):** count words in each bullet. Target 10–15 words; **hard cap 15**. Any bullet over 15 words must be split into two bullets or trimmed. If a bullet contains a `.`, `;`, or `—` mid-sentence that introduces a second clause-as-sentence, you've got a multi-sentence bullet — collapse to one short sentence.
+   - **Anchoring check (mandatory, per bullet):**
+     - For each `Yesterday` bullet: ask *"is this actually done at the writing moment?"* If it isn't done yet (still in progress, planned for later today, blocked), move it to `Today` or remove it.
+     - For each `Today` bullet: ask *"is this still remaining work that hasn't been done?"* If it was already completed today, move it to `Yesterday`.
+     - The report is written at end-of-day H and read on morning H+1. Every `Yesterday` bullet must be factually true ("I did X") at the reading moment, and every `Today` bullet must be a genuine forecast ("I will do Y") — not pre-credited work.
    - Boss-readable strip: any commit hash, branch name, MR/PR number, internal file path, function/variable name with underscores, or internal endpoint URL inside a bullet? Strip and rephrase as the activity that name represents.
    - External-reader check: would a reader outside your team understand each bullet without opening the repo? Replace internal process jargon (`opsi A`, `path 1`, `spike`) with the concrete activity.
    - Verbs: any `continue`? Replace with a specific verb.
    - Fillers vs texture: any `just`, `simply`, `some`, `various`, `kind of`? Remove. Hedges that carry meaning (`for now`, `first time`, `got set aside`, `still`) stay.
-   - Voice check: read the report aloud. Does it sound like a developer giving a 5-minute update, or like a press release? If everything is in the same sentence shape and same beat, break the pattern.
-   - Anchoring check: imagine the reader opens this tomorrow morning. Does `Yesterday` describe what was actually done in the just-finished session, and does `Today` describe what's planned next? If `Today` accidentally captures activity the writer just finished, shift everything one slot.
+   - Voice check: read the report aloud. Each bullet should land cleanly in one breath. If a bullet feels like a paragraph, you're past the cap — trim or split.
 
 6. **Emit the final report** in the exact template shape. No preamble, no trailing commentary.
 

@@ -4,7 +4,7 @@ These are **synthetic illustrative examples**, not real reports. Study the densi
 
 All examples below follow the default counts: 5 bullets for `# Yesterday`, 3 bullets for `# Today`.
 
-**Read example D first.** It demonstrates the preferred human voice (variable bullet length, multi-sentence narration where it earns its keep, casual hedges that carry meaning, no internal navigation tokens). Examples A–C are still valid for compact-mode reports but lean more uniform — when a day's activity has nuance, prefer D's voice.
+Every bullet across the examples lands at 10–15 words, one short sentence each. That is the target shape: scannable, compact, no multi-sentence narration. Examples A–C show the canonical voice; Example D applies the same compact shape to a day with more uncertainty (decisions, deferrals) without expanding into paragraphs.
 
 ---
 
@@ -87,32 +87,30 @@ Hello, this is my daily report:
 
 ---
 
-## Example D — ML inference service (preferred voice)
+## Example D — ML inference service (compact voice with deferrals)
 
 ```
 Hello, this is my daily report:
 
 # Yesterday
-- Stop the model warmup from blocking the readiness probe during deploys; the load balancer was killing pods before the model finished loading
-- Patch the embedding service to fall back to the previous model version when the new one returns NaN, instead of returning a 500
-- Switch feature-store reads from synchronous Redis calls to a small async batcher. Recommendation endpoint p95 dropped about 40 ms
+- Stop model warmup from blocking the readiness probe during deploys
+- Add fallback to the previous model version when embeddings return NaN
+- Switch feature-store reads to a small async batcher; p95 dropped 40 ms
 - Document the on-call runbook for embedding service rollbacks
-- Review the inference autoscaler PR and leave a couple of comments about cold-start ramp
+- Review the inference autoscaler PR and flag cold-start ramp comments
 
 # Today
-- Ship the embedding fallback to staging, then watch the error rate for an hour or two before promoting
-- Look at why the autoscaler's cold-start fix doesn't kick in for the largest model. Possibly related to startup probe timing — needs to be reproduced locally first
-- Two flaky tests in the recommendation service kept failing on CI today. Either skip them or fix them properly tomorrow, depending on what the failure mode looks like in the morning
+- Ship the embedding fallback to staging and watch error rate for an hour
+- Investigate why the autoscaler cold-start fix misses the largest model
+- Decide on the two flaky recommendation tests: fix or skip
 ```
 
 **What to notice:**
-- Bullet length varies: short (10 words), medium (20), long-with-aside (25+, including a follow-up sentence). Reads like a real person reflecting, not a template.
-- Casual hedges that carry meaning: `for an hour or two`, `Possibly related to`, `kept failing`, `depending on what... looks like in the morning`. None are filler — each tells you something about timing, certainty, or status.
-- Multi-sentence bullets used where one fact deserves an aside (`Recommendation endpoint p95 dropped about 40 ms` after a setup sentence; the autoscaler bullet pairs a hypothesis with a planned next step).
-- Non-uniform openers: most are action verbs, but `Two flaky tests in the recommendation service` opens with the subject because that reads more naturally than forcing a verb.
-- Real outcomes named: `40 ms`, `p95`, `NaN`, `readiness probe`, `embedding service` — the same kind of specifics A–C use, but woven into sentences rather than tacked on as qualifiers.
-- A bullet admits uncertainty (`Either skip them or fix them properly tomorrow`). Honest > polished.
-- No commit hashes, no branch names, no MR numbers, no internal file paths or function names. The reader gets architecture + decisions, not navigation.
+- Every bullet is 10–14 words, one short sentence. No parentheticals, no follow-up clauses.
+- Real outcomes named compactly: `40 ms`, `p95`, `NaN`, `readiness probe` — facts, not qualifiers.
+- Decisions and deferrals get their own short bullets (`Decide on the two flaky tests: fix or skip`) instead of being narrated inside a longer thought.
+- `Today` bullets are forecasts, not narrations — each is a single planned next-step.
+- No commit hashes, branch names, MR numbers, internal file paths or function names.
 
 ---
 
@@ -155,15 +153,13 @@ A bullet should still make sense to a reader pulled in cold. If it doesn't, rewr
 - Schedule code review for the database migration
 ```
 
-**Why this fails the voice check** — even though every individual rule on technical specificity passes:
+**Why this fails the voice check** — even though word counts and technical specificity look fine:
 
-- Every bullet starts with a strong action verb followed by a technical noun phrase. Same shape, ten times in a row.
-- Every bullet lands in the 9–13 word range. Same beat, same rhythm.
-- No multi-sentence bullets, no parentheticals, no hedges, no admissions of uncertainty.
-- `Today` opens two of three bullets with `Continue` and `Begin` — both AI tells; the actual activity is hidden.
-- Reads like a feature-list press release, not a person reporting their day.
+- `Today` opens two of three bullets with `Continue` and `Begin` — both AI tells; the actual activity is hidden behind a vague verb.
+- No surfacing of what didn't go well, no decisions deferred, no honest deferrals. A real day has at least one of these.
+- Every bullet closes on a similar beat (technical noun phrase). Reads like a feature-list press release.
 
-The fix is not to drop technical specificity. It's to break the rhythm: vary length, allow the occasional fragment or two-sentence bullet, surface what didn't go well, name the moments where a decision was deferred. See Example D for what that looks like.
+The fix is not to drop technical specificity or expand the bullets. It's to use specific verbs (replace `Continue` / `Begin` with what's actually happening), and to surface at least one item that's deferred, blocked, or uncertain. See Example D for compact bullets that still admit deferral.
 
 ---
 
@@ -193,11 +189,40 @@ The internal token belongs in the commit message and the merge request descripti
 
 ---
 
+## Anti-pattern D — verbose bullets that bury the point
+
+```
+# Yesterday
+- Built crash detection in the SWE-bench session runner so a hung or self-aborting agent container fails fast instead of burning the full per-benchmark timeout. Verified end-to-end with a forced docker kill mid-WAIT and four real failures from broken agents — across yesterday's test runs this saved roughly thirteen minutes of wasted polling.
+- Surfaced the actual cause of the free-code agent failure by adding stdout capture to the wrapper. It isn't a model adapter issue at all — the binary aborts with "Not logged in · Please run /login" and ignores the API key env var. Same behaviour on Gemma 26B, Gemma 31B, and Sonnet from prior runs. Fix is now scoped: bake login state into the image or find a bypass flag.
+```
+
+**Why this fails:**
+- Each bullet is 45–60+ words, far past the 15-word cap. The reader can't scan the column — every bullet demands a full read.
+- Bullet 1 packs three distinct activities (build, verify, measure savings) into one paragraph. That's three bullets.
+- Bullet 2 mixes the diagnostic finding, the root cause, the cross-model evidence, AND the proposed fix — each is its own thought, each its own bullet.
+- Multi-sentence narration with `—`, `;`, and follow-up sentences is forbidden under rule 1.
+
+Rewritten — same content, split into compact 10–15 word bullets:
+
+```
+# Yesterday
+- Add crash detection to the SWE-bench session runner for hung agents
+- Verify it end-to-end with a forced docker kill plus four broken-agent runs
+- Capture wrapper stdout to surface free-code's real failure: "Not logged in"
+- Confirm the auth gate hits Gemma 26B, Gemma 31B, and Sonnet
+- Scope the fix as image-level: bake auth in or find a bypass flag
+```
+
+The information is identical. The shape is now scannable, and the cross-model evidence and the planned fix get their own bullets.
+
+---
+
 ## Common patterns across the examples
 
+- Every bullet is one short sentence, 10–15 words, no multi-sentence narration.
 - Technical names and version numbers are surfaced — but only when they appear in the actual context blob.
-- Action verbs are explicit and varied: `Implement`, `Migrate`, `Add`, `Debug`, `Refactor`, `Investigate`, `Profile`, `Document`, `Validate`, `Review`, `Wire`, `Fix`, `Cut`. Not every bullet has to lead with one — Example D opens a bullet with the subject when that reads more naturally.
+- Action verbs are explicit and varied: `Implement`, `Migrate`, `Add`, `Debug`, `Refactor`, `Investigate`, `Profile`, `Document`, `Validate`, `Review`, `Wire`, `Fix`, `Cut`, `Decide`, `Scope`. Avoid `Continue`, `Begin`, and other vague openers.
 - Non-coding work (reviews, investigations, docs, runbooks, meetings) is reported alongside coding work.
-- Each bullet reads independently of any team-internal context — and stripped of internal navigation tokens (commit hashes, branch names, MR numbers, function names, file paths).
-- Bullet length varies on purpose. A column of identical 12-word bullets reads templated; a mix of short, medium, and occasionally multi-sentence bullets reads human.
-- `Today` flows from `Yesterday` plus free-prompt hints, not invented from scratch. Honest deferrals and uncertainties belong here as much as confirmed plans.
+- Each bullet reads independently of any team-internal context — stripped of internal navigation tokens (commit hashes, branch names, MR numbers, function names, file paths).
+- `Today` flows from `Yesterday` plus free-prompt hints, not invented from scratch. Honest deferrals and uncertainties belong here as much as confirmed plans — but each gets its own short bullet, not a paragraph.
